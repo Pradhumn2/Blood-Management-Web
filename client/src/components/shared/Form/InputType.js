@@ -1,6 +1,6 @@
 import React from "react";
 
-const InputType = ({
+export const InputType = ({
   labelText,
   labelFor,
   inputType,
@@ -25,5 +25,6 @@ const InputType = ({
     </>
   );
 };
+
 
 export default InputType;

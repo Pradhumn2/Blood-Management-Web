@@ -7,6 +7,10 @@ const inventorySchema = new mongoose.Schema(
       required: [true, "inventory type require"],
       enum: ["in", "out"],
     },
+    email: {
+      type: String,
+      required: [true, "Donar Email is Required"],
+    },
     bloodGroup: {
       type: String,
       required: [true, "blood group is require"],
@@ -15,10 +19,6 @@ const inventorySchema = new mongoose.Schema(
     quantity: {
       type: Number,
       require: [true, "blood quanity is require"],
-    },
-    email: {
-      type: String,
-      required: [true, "Donar Email is Required"],
     },
     organisation: {
       type: mongoose.Schema.Types.ObjectId,

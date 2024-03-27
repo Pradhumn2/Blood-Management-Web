@@ -4,7 +4,10 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
-    const existingUser = await userModel.findOne({ email: req.body.email });
+    console.log(req.body);
+    const existingUser = await userModel
+      .findOne({ email: req.body.email })
+      .maxTimeMS(30000); // Set timeout to 30 seconds
 
     //Validation
     if (existingUser) {
@@ -13,6 +16,8 @@ const register = async (req, res) => {
         message: "User already exists",
       });
     }
+
+    console.log("user");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -37,7 +42,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const user = await userModel.findOne({ email: req.body.email });
+    const user = await userModel.findOne({ email: req.body.email }).maxTimeMS(30000);
     if (!user) {
       return res.status(404).json({
         success: "Failed",
