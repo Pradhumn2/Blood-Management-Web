@@ -7,7 +7,7 @@ const inventorySchema = new mongoose.Schema(
       required: [true, "inventory type require"],
       enum: ["in", "out"],
     },
-    email: {
+    donarEmail: {
       type: String,
       required: [true, "Donar Email is Required"],
     },
@@ -23,7 +23,7 @@ const inventorySchema = new mongoose.Schema(
     organisation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
-      required: [true, "organisation is require"],
+      required: [true, "organisation email is required"],
     },
     hospital: {
       type: mongoose.Schema.Types.ObjectId,

@@ -4,20 +4,31 @@ const userModel = require("../models/userModel");
 
 const createInventoryController = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await userModel.findOne({ email });
+    const { donarEmail } = req.body;
+    const { organisationEmail } = req.body;
+
+    // console.log(donarEmail);
+    // console.log("hello", organisationEmail);
+
+    const user = await userModel.findOne({ email: donarEmail });
+    const org = await userModel.findOne({ email: organisationEmail });
 
     //Validation Check
+    // console.log("user id", user);
+    // console.log("org id", org);
+
     if (!user) {
       throw new Error("User not found");
     }
-
-    // if (inventoryType === "in" && user.role !== "donar") {
-    //   throw new Error("Not a donar account");
-    // }
-    // if (inventoryType === "out" && user.role !== "hospital") {
-    //   throw new Error("Not a hospital");
-    // }
+    if (!org) {
+      throw new Error("Organisation not found");
+    }
+    if (req.body.inventoryType === "in" && user.role !== "donar") {
+      throw new Error("Not a donar account");
+    }
+    if (req.body.inventoryType === "out" && user.role !== "hospital") {
+      throw new Error("Not a hospital account");
+    }
 
     console.log("hello");
 
@@ -76,6 +87,7 @@ const createInventoryController = async (req, res) => {
       req.body.hospital = user?._id;
     } else {
       req.body.donar = user?._id;
+      req.body.organisation = org?._id;
     }
 
     //save new record
@@ -181,10 +193,14 @@ const getOrganisationController = async (req, res) => {
     const donar = req.body.userId;
     const orgId = await inventoryModel.distinct("organisation", { donar });
 
-    //find org
+
+    //finding organisations
     const organisations = await userModel.find({
       _id: { $in: orgId },
     });
+
+    // console.log("donar is ", donar);
+    // console.log("organisation id is ", organisations);
 
     return res.status(200).send({
       success: true,

@@ -9,7 +9,7 @@ const OrganisationPage = () => {
   const getOrg = async () => {
     try {
       const { data } = await API.get("/inventory/get-organisation");
-      //   console.log(data);
+        console.log(data);
       if (data?.success) {
         setData(data?.organisations);
       }

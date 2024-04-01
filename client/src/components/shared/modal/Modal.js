@@ -17,9 +17,15 @@ const Modal = () => {
       if (!bloodGroup || !quantity) {
         return alert("Please provide all fields");
       }
+      // const organisation_id = await userModel.findOne({email});
+
+      // if(!organisation_id){
+      //   throw new Error("Organisation not found");
+      // }
+
       const { data } = await API.post("/inventory/create-inventory", {
-        email,
-        organisation: user?._id,
+        donarEmail: user?.email,
+        organisationEmail: email,
         inventoryType,
         bloodGroup,
         quantity,
@@ -99,8 +105,8 @@ const Modal = () => {
                 <option value={"B-"}>B-</option>
               </select>
               <InputType
-                labelText={(inventoryType === 'in') ? "Donar Email" : "Hospital Email"}
-                labelFor={(inventoryType === 'in') ? "donarEmail" : "hospitalEmail"}
+                labelText={(inventoryType === 'in') ? "Organisation Email" : "Hospital Email"}
+                labelFor={(inventoryType === 'out') ? "donarEmail" : "hospitalEmail"}
                 inputType={"email"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

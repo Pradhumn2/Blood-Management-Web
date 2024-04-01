@@ -17,7 +17,7 @@ const register = async (req, res) => {
       });
     }
 
-    console.log("user");
+    // console.log("user");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -42,7 +42,9 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const user = await userModel.findOne({ email: req.body.email }).maxTimeMS(30000);
+    const user = await userModel
+      .findOne({ email: req.body.email })
+      .maxTimeMS(30000);
     if (!user) {
       return res.status(404).json({
         success: "Failed",
