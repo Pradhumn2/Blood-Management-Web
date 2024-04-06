@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const path = require("path");
 
 //dot config
 dotenv.config();
@@ -28,6 +29,14 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/admin", adminRoutes);
+
+// STATIC FOLDER
+app.use(express.static(path.join(__dirname, "./client/build")));
+
+// STATIC ROUTES
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
