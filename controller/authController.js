@@ -11,13 +11,11 @@ const register = async (req, res) => {
 
     //Validation
     if (existingUser) {
-      res.status(200).json({
+      return res.status(200).json({
         success: "Failed",
         message: "User already exists",
       });
     }
-
-    // console.log("user");
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -45,7 +43,7 @@ const login = async (req, res) => {
     const user = await userModel
       .findOne({ email: req.body.email })
       .maxTimeMS(30000);
-    if (!user) {
+    if (!user || user.role !== req.body.role) {
       return res.status(404).json({
         success: "Failed",
         message: "User Not Found",

@@ -13,7 +13,13 @@ export const userLogin = createAsyncThunk(
         localStorage.setItem("token", data.token);
         alert(data.message);
         console.log("data is ", data);
-        window.location.replace("/");
+        if (role === "organisation") {
+          window.location.replace("/");
+        } else if (role === "admin") {
+          window.location.replace("/admin");
+        } else {
+          window.location.replace("/organisation");
+        }
       }
       return data;
     } catch (error) {
@@ -55,14 +61,16 @@ export const userRegister = createAsyncThunk(
         hospitalName,
         website,
       });
-      if (data?.success) {
+      if (data.success !== "Failed") {
         alert("User Registerd Successfully");
         window.location.replace("/login"); //redirect to login
         // toast.success("User Registerd Successfully");
+        return data;
       }
-      return data;
+      else{
+        return rejectWithValue(data.message);
+      }
     } catch (error) {
-      console.log(error);
       if (error.response && error.response.data.message) {
         return rejectWithValue(error.response.data.message);
       } else {

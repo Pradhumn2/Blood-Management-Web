@@ -4,12 +4,13 @@ module.exports = async (req, res, next) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
     JWT.verify(token, process.env.JWT_SECRET, (err, decode) => {
-        if(err){
+        if(err){ 
             return res.status(404).json({
                 success: "Success",
                 message: "User Not Found",
               });
         }
+        console.log(decode);
         req.body.userId = decode.userId;
         next();
     })

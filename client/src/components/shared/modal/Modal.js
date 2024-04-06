@@ -1,4 +1,4 @@
-import { set } from "mongoose";
+// import { set } from "mongoose";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import API from "../../../services/API";
@@ -17,11 +17,6 @@ const Modal = () => {
       if (!bloodGroup || !quantity) {
         return alert("Please provide all fields");
       }
-      // const organisation_id = await userModel.findOne({email});
-
-      // if(!organisation_id){
-      //   throw new Error("Organisation not found");
-      // }
 
       const { data } = await API.post("/inventory/create-inventory", {
         donarEmail: user?.email,
@@ -105,8 +100,8 @@ const Modal = () => {
                 <option value={"B-"}>B-</option>
               </select>
               <InputType
-                labelText={(inventoryType === 'in') ? "Organisation Email" : "Hospital Email"}
-                labelFor={(inventoryType === 'out') ? "donarEmail" : "hospitalEmail"}
+                labelText={(inventoryType === 'in') ? "Organisation Email" : "Organisation Email"}
+                labelFor={(inventoryType === 'out') ? "Organisation Email" : "Organisation Email"}
                 inputType={"email"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

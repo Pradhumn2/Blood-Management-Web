@@ -20,6 +20,7 @@ const createInventoryController = async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     }
+
     if (!org) {
       throw new Error("Organisation not found");
     }
@@ -30,13 +31,12 @@ const createInventoryController = async (req, res) => {
       throw new Error("Not a hospital account");
     }
 
-    console.log("hello");
-
     if (req.body.inventoryType === "out") {
       const requestedBloodGroup = req.body.bloodGroup;
       const requestedQuantityOfBlood = req.body.quantity;
-      const organisation = new mongoose.Types.ObjectId(req.body.userId);
+      const organisation = new mongoose.Types.ObjectId(org);
 
+      console.log("organisation is ", organisation);
       //calculating blood quantity
       const totalInOfRequestedBlood = await inventoryModel.aggregate([
         {
@@ -53,7 +53,8 @@ const createInventoryController = async (req, res) => {
           },
         },
       ]);
-      // console.log("Total In", totalInOfRequestedBlood);
+      console.log("Total In", totalInOfRequestedBlood);
+
       const totalIn = totalInOfRequestedBlood[0]?.total || 0;
 
       //calculate out blood quantity
@@ -74,6 +75,8 @@ const createInventoryController = async (req, res) => {
       ]);
       const totalOut = totalOutOfRequestedBloodGroup[0]?.total || 0;
 
+      console.log("total IN ", totalIn);
+      console.log("total out ", totalOut);
       //in and out calc
       const availableQuantityOfBloodGroup = totalIn - totalOut;
 
@@ -84,16 +87,24 @@ const createInventoryController = async (req, res) => {
           message: `Only ${availableQuantityOfBloodGroup}ml of ${requestedBloodGroup.toUpperCase()} is available`,
         });
       }
+
+      delete req.body.userId;
+      delete req.body.organisationEmail;
+
       req.body.hospital = user?._id;
+      req.body.organisation = org?._id;
     } else {
       req.body.donar = user?._id;
       req.body.organisation = org?._id;
     }
 
+    console.log(req.body);
+
     //save new record
     const inventory = new inventoryModel(req.body);
     await inventory.save();
 
+    console.log("upto here");
     return res.status(201).json({
       success: "Success",
       message: "New Blood Bank record added successfully",
@@ -102,11 +113,12 @@ const createInventoryController = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       success: "Failed",
-      message: "Error in fetching data from API",
+      message: error.message,
     });
   }
 };
 
+// get all blood record
 const getInventoryController = async (req, res) => {
   try {
     const inventory = await inventoryModel
@@ -129,6 +141,54 @@ const getInventoryController = async (req, res) => {
     });
   }
 };
+
+// get all hospital blood record
+
+const getInventoryHospitalController = async (req, res) => {
+  try {
+    const inventory = await inventoryModel
+      .find(req.body.filters)
+      .populate("donar")
+      .populate("hospital")
+      .populate("organisation")
+      .sort({ createdAt: -1 }); //filters
+    return res.status(200).json({
+      success: "Success",
+      message: "Get hospital consumer records successfully",
+      inventory,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: "Failed",
+      message: "Error in get hospital consumer inventory",
+    });
+  }
+};
+
+// GET BLOOD RECORD OF 3
+
+// const getRecentInventoryController = async (req, res) => {
+//   try {
+//     const inventory = await inventoryModel
+//       .find({
+//         organidation: req.body.userId,
+//       })
+//       .limit(3)
+//       .sort({ createdAt: -1 });
+//     return res.status(200).send({
+//       success: true,
+//       message: "Recent Inventory Data",
+//       inventory,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({
+//       success: "Failed",
+//       message: "Error in get blood record for analytics",
+//     });
+//   }
+// };
 
 /********************* GET DONAR RECORD *********************/
 
@@ -187,12 +247,11 @@ const getHospitalController = async (req, res) => {
   }
 };
 
-//********** GET ORG CONTROLLER******************* */
+//********** GET ORG CONTROLLER FOR DONARS******************* */
 const getOrganisationController = async (req, res) => {
   try {
     const donar = req.body.userId;
     const orgId = await inventoryModel.distinct("organisation", { donar });
-
 
     //finding organisations
     const organisations = await userModel.find({
@@ -217,10 +276,42 @@ const getOrganisationController = async (req, res) => {
   }
 };
 
+//********** GET ORG CONTROLLER FOR HOSPITAL******************* */
+
+const getOrganisationForHospitalController = async (req, res) => {
+  try {
+    const hospital = req.body.userId;
+    const orgId = await inventoryModel.distinct("organisation", { hospital });
+
+    //finding organisations
+    const organisations = await userModel.find({
+      _id: { $in: orgId },
+    });
+
+    // console.log("donar is ", hospital);
+    // console.log("organisation id is ", organisations);
+
+    return res.status(200).send({
+      success: true,
+      message: "Hospital org data fetched successfully",
+      organisations,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: "Failed",
+      message: "Error in organisation records API for hospitals",
+      error,
+    });
+  }
+};
+
 module.exports = {
   createInventoryController,
   getInventoryController,
   getDonarController,
   getHospitalController,
   getOrganisationController,
+  getOrganisationForHospitalController,
+  getInventoryHospitalController,
 };

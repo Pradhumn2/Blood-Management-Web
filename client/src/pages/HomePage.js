@@ -5,11 +5,12 @@ import Layout from "../components/shared/Layout/Layout";
 import Modal from "../components/shared/modal/Modal";
 import API from "../services/API";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading, error, user } = useSelector((state) => state.auth);
   const [data, setData] = useState([]);
-
+  const navigate = useNavigate();
   //get function
   const getBloodRecords = async () => {
     try {
@@ -29,21 +30,24 @@ const HomePage = () => {
 
   return (
     <Layout>
+      {user?.role === 'admin' && navigate("/admin")}
       {error && <span>{alert(error)}</span>}
       {loading ? (
         <Spinner />
       ) : (
         <>
           <div className="container">
-            <h4
-              className="ms-4"
-              data-toggle="modal"
-              data-target="#staticBackdrop"
-              style={{ cursor: "pointer" }}
-            >
-              <i className="fa-solid fa-plus text-success py-4"></i>
-              Add Inventory
-            </h4>
+            {user?.role !== "organisation" && (
+              <h4
+                className="ms-4"
+                data-toggle="modal"
+                data-target="#staticBackdrop"
+                style={{ cursor: "pointer" }}
+              >
+                <i className="fa-solid fa-plus text-success py-4"></i>
+                Add Inventory
+              </h4>
+            )}
             <table className="table">
               <thead>
                 <tr>
@@ -68,8 +72,8 @@ const HomePage = () => {
                 ))}
               </tbody>
             </table>
-
-            <Modal />
+            {/* <Modal/> */}
+            {user?.role !== "organisation" && <Modal />}
           </div>
         </>
       )}
